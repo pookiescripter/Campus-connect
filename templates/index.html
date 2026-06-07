@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Connect</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg,#0f172a,#1e293b,#312e81);
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:1100px;
+    text-align:center;
+}
+
+.hero{
+    margin-bottom:40px;
+}
+
+.hero h1{
+    font-size:clamp(2rem,6vw,4rem);
+    font-weight:700;
+    margin-bottom:15px;
+}
+
+.hero p{
+    max-width:700px;
+    margin:auto;
+    opacity:.8;
+    line-height:1.8;
+}
+
+.btn{
+    margin-top:30px;
+    border:none;
+    cursor:pointer;
+    padding:16px 30px;
+    border-radius:999px;
+    font-size:1rem;
+    font-weight:600;
+    background:white;
+    color:#312e81;
+    transition:.3s;
+}
+
+.btn:hover{
+    transform:translateY(-3px);
+}
+
+.profile-card{
+    display:none;
+    max-width:420px;
+    margin:40px auto 0;
+    background:rgba(255,255,255,.1);
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:24px;
+    overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,.3);
+}
+
+.profile-image{
+    width:100%;
+    height:320px;
+    object-fit:cover;
+}
+
+.profile-content{
+    padding:24px;
+}
+
+.profile-content h2{
+    margin-bottom:8px;
+}
+
+.profile-content p{
+    opacity:.8;
+    margin-bottom:10px;
+}
+
+.badge{
+    display:inline-block;
+    background:rgba(255,255,255,.15);
+    padding:8px 14px;
+    border-radius:999px;
+    margin-top:10px;
+}
+
+.loading{
+    display:none;
+    margin-top:20px;
+}
+
+@media(max-width:768px){
+
+    .profile-card{
+        max-width:100%;
+    }
+
+    .profile-image{
+        height:280px;
+    }
+
+    .btn{
+        width:100%;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="hero">
+        <h1>Campus Connect</h1>
+
+        <p>
+            Discover fellow students who have chosen to participate
+            in the campus networking community. Meet new people,
+            build friendships, collaborate on projects, and grow your network.
+        </p>
+
+        <button class="btn" onclick="getRandomProfile()">
+            Find Someone New
+        </button>
+
+        <div class="loading" id="loading">
+            Finding someone...
+        </div>
+    </div>
+
+    <div class="profile-card" id="card">
+        <img id="photo"
+             class="profile-image"
+             src=""
+             alt="Profile">
+
+        <div class="profile-content">
+            <h2>Name:</h2>
+            <p id="name">Name</h2>
+            <h2>Roll Number</h2>
+            <p id="roll">Roll Number</h2>
+            <h2>Ph No.</h2>
+            <p id="phno">Ph No.</h2>
+            <span class="badge">Open to Connect</span>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+async function getRandomProfile(){
+
+    document.getElementById("loading").style.display = "block";
+
+    try{
+
+        const response = await fetch("/profile");
+
+        const data = await response.json();
+
+        document.getElementById("name").innerText =
+            data.name || "Unknown";
+
+        document.getElementById("roll").innerText =
+            data.roll_no || "";
+
+        document.getElementById("phno").innerText =
+        data.primary_phone || "";
+
+        document.getElementById("photo").src =
+            data.picture_url || "";
+
+        document.getElementById("card").style.display = "block";
+
+    }catch(err){
+        console.error(err);
+    }
+
+    document.getElementById("loading").style.display = "none";
+}
+
+</script>
+
+</body>
+</html>
