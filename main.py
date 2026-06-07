@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from flask import Flask, render_template, Response
+import os
 
 def generate_roll_no():
     prefixes = [
@@ -169,4 +170,9 @@ def photo(session_id):
     )
 
 
-app.run(debug=True)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(
+        host="0.0.0.0",
+        port=port
+    )
