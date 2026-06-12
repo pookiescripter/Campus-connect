@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tezpur University Profile Finder</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+font-family:Poppins,sans-serif;
+}
+
+body{
+min-height:100vh;
+background:linear-gradient(135deg,#667eea,#764ba2);
+padding:20px;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.container{
+width:100%;
+max-width:1000px;
+}
+
+.search-card{
+background:rgba(255,255,255,.15);
+backdrop-filter:blur(20px);
+padding:30px;
+border-radius:25px;
+box-shadow:0 15px 40px rgba(0,0,0,.15);
+color:white;
+}
+
+h1{
+text-align:center;
+margin-bottom:25px;
+font-size:2rem;
+}
+
+.input-group{
+margin-bottom:18px;
+}
+
+label{
+display:block;
+margin-bottom:8px;
+font-weight:500;
+}
+
+input{
+width:100%;
+padding:14px;
+border:none;
+border-radius:15px;
+font-size:15px;
+outline:none;
+}
+
+button{
+width:100%;
+padding:15px;
+border:none;
+border-radius:15px;
+background:#fff;
+color:#764ba2;
+font-weight:700;
+font-size:16px;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+transform:translateY(-2px);
+}
+
+.loader{
+display:none;
+text-align:center;
+margin-top:20px;
+}
+
+.spinner{
+width:50px;
+height:50px;
+border:5px solid rgba(255,255,255,.3);
+border-top:5px solid white;
+border-radius:50%;
+margin:auto;
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+100%{
+transform:rotate(360deg);
+}
+}
+
+.profile{
+display:none;
+margin-top:30px;
+background:white;
+border-radius:25px;
+overflow:hidden;
+box-shadow:0 20px 40px rgba(0,0,0,.2);
+}
+
+.cover{
+height:180px;
+background:linear-gradient(135deg,#667eea,#764ba2);
+}
+
+.profile-top{
+margin-top:-70px;
+text-align:center;
+padding:0 20px;
+}
+
+.profile-top img{
+width:140px;
+height:140px;
+border-radius:50%;
+border:6px solid white;
+object-fit:cover;
+background:white;
+}
+
+.name{
+font-size:30px;
+font-weight:700;
+margin-top:15px;
+}
+
+.roll{
+color:#666;
+font-size:17px;
+}
+
+.grid{
+padding:30px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:20px;
+}
+
+.card{
+background:#f7f8ff;
+padding:25px;
+border-radius:20px;
+}
+
+.card h2{
+color:#764ba2;
+margin-bottom:15px;
+font-size:20px;
+}
+
+.item{
+margin-bottom:12px;
+}
+
+.item span{
+font-weight:600;
+color:#555;
+}
+
+@media(max-width:768px){
+
+.name{
+font-size:24px;
+}
+
+.profile-top img{
+width:110px;
+height:110px;
+}
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="search-card">
+
+<h1>🔍 TU Students Details Finder</h1>
+
+<div class="input-group">
+<label>Roll Number</label>
+<input id="roll_no" placeholder="Enter your roll no">
+</div>
+
+<label>If the student is enrolled on or after the year 2025 fill this</label>
+
+<div class="input-group">
+<input id="lower" placeholder="Lower limit eg. 2002">
+</div>
+
+<div class="input-group">
+<input id="upper" placeholder="Upper limit eg. 2005">
+</div>
+
+<button onclick="fetchProfile()">Search Profile</button>
+
+<div class="loader" id="loader">
+<div class="spinner"></div>
+<h3 style="margin-top:20px;">Fetching profile...</h3>
+</div>
+
+</div>
+
+<div class="profile" id="profile">
+
+<div class="cover"></div>
+
+<div class="profile-top">
+
+<img id="photo">
+
+<div class="name" id="name"></div>
+<div class="roll" id="roll"></div>
+
+</div>
+
+<div class="grid">
+
+<div class="card">
+
+<h2>📞 Personal Information</h2>
+
+<div class="item">
+<span>Phone:</span>
+<div id="phone"></div>
+</div>
+
+<div class="item">
+<span>Email:</span>
+<div id="email"></div>
+</div>
+
+<div class="item">
+<span>Date of Birth:</span>
+<div id="dob"></div>
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>🏠 Main Address</h2>
+
+<div id="main_address"></div>
+
+</div>
+
+<div class="card">
+
+<h2>📍 Alternate Address</h2>
+
+<div id="alt_address"></div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+async function fetchProfile(){
+
+document.getElementById("loader").style.display="block";
+document.getElementById("profile").style.display="none";
+
+const payload={
+roll_no:document.getElementById("roll_no").value,
+year_lower:Number(document.getElementById("lower").value)||null,
+year_upper:Number(document.getElementById("upper").value)||null
+};
+
+try{
+
+const res=await fetch("/fetch-profile",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(payload)
+});
+
+const data=await res.json();
+
+document.getElementById("photo").src=data.picture_url;
+document.getElementById("name").innerText=data.name;
+document.getElementById("roll").innerText=data.roll_no;
+
+document.getElementById("phone").innerText=data.primary_phone||"-";
+
+document.getElementById("email").innerText=
+data.alternate_address.email||"-";
+
+document.getElementById("dob").innerText=
+data.date_of_birth||"-";
+
+document.getElementById("main_address").innerHTML=`
+${data.main_address.address||""}<br>
+${data.main_address.address_2||""}<br>
+${data.main_address.city||""}<br>
+${data.main_address.state||""}<br>
+${data.main_address.zip_postal_code||""}<br>
+${data.main_address.country||""}
+`;
+
+document.getElementById("alt_address").innerHTML=`
+${data.alternate_address.address||""}<br>
+${data.alternate_address.address_2||""}<br>
+${data.alternate_address.city||""}<br>
+${data.alternate_address.state||""}<br>
+${data.alternate_address.zip_postal_code||""}<br>
+${data.alternate_address.country||""}
+`;
+
+document.getElementById("profile").style.display="block";
+
+}
+catch(e){
+alert("Failed to fetch profile.");
+}
+
+document.getElementById("loader").style.display="none";
+
+}
+
+</script>
+
+</body>
+</html>
